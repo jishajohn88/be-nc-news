@@ -14,6 +14,16 @@ afterAll(()=> {
     return db.end()
 })
 
+describe("GET /api",() => {
+    test("responds with a json detailing all the available endpoints", () => {
+        return request(app)
+        .get('/api')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.endpoints).toEqual(endpoints)
+        })
+    })
+})
 describe("GET /api/topics",() => {
     test("GET:200 responds with an array of topics", () => {
         return request(app)
