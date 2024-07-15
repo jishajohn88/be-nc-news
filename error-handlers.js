@@ -1,3 +1,10 @@
+exports.psqlErrorHandler = (error,request,response,next) => {
+    if(error.code === '22P02'){
+        response.status(400).send({message: 'Invalid id type'})
+    }else {
+        next(error)
+    }
+}
 exports.customErrorHandler = (error,request,response,next) => {
     if(error.status && error.message){
         response.status(error.status).send({message : error.message})
