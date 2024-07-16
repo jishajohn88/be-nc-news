@@ -48,6 +48,53 @@ describe("GET /api/topics",() => {
 })
 
 describe("GET /api/articles/:article_id",()=>{
+
+    test("GET: 200 sends an array of article objects",()=>{
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBeGreaterThan(0)
+            body.articles.forEach((article)=>{
+                expect(typeof article.author).toBe('string')
+                expect(typeof article.title).toBe('string')
+                expect(typeof article.article_id).toBe('number')
+                expect(typeof article.topic).toBe('string')
+                expect(typeof article.created_at).toBe('string')
+                expect(typeof article.votes).toBe('number')
+                expect(typeof article.article_img_url).toBe('string')
+                expect(typeof article.comment_count).toBe('string')
+            })
+        })
+    })
+    test("GET: 200 sends an array of article objects sorted in descending order for date",() => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then((response) => {
+           expect(response.body.articles.length).toBeGreaterThan(0)
+           expect(response.body.articles).toBeSortedBy("created_at",{descending:true})
+        })
+    })
+    test("GET: 200 sends an array of article objects with no body property present in each object",() => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBeGreaterThan(0)
+            body.articles.forEach((article) => {
+                expect(article).not.toHaveProperty('body')
+            })
+        })
+    })
+    test("GET: 400 send an appropriate error message when an invalid query is passed", () => {
+        return request(app)
+        .get('/api/articleee123')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe("Path not found")
+        })
+    })
     test("GET:200 sends a single article to the user",() => {
         return request(app)
         .get('/api/articles/1')
