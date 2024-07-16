@@ -115,7 +115,7 @@ describe("GET /api/articles/:article_id",()=>{
         .get('/api/articles/not-an-id')
         .expect(400)
         .then(({body}) => {
-            expect(body.message).toBe('Invalid id type')
+            expect(body.message).toBe('Bad request')
         })
     })
     test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", ()=>{
@@ -188,6 +188,49 @@ describe("GET /api/articles/:article_id/comments",() => {
         .expect(400)
         .then(({body}) => {
             expect(body.message).toBe('Path not found')
+        })
+    })
+})
+
+describe("POST /api/articles/:article_id/comments",()=>{
+    test("POST: 201 inserts a new comment to the db and responds with the posted comment back to the user",() => {
+        const newComment = {
+            "username" : "butter_bridge",
+            "body"  : "The article have given me some beautiful insights into the world of ecommerce"
+        }
+        return request(app)
+        .post('/api/articles/2/comments')
+        .send(newComment)
+        .expect(201)
+        .then(({body})=>{
+            expect(body.comment.comment_id).toBe(19)
+            expect(body.comment.author).toBe('butter_bridge')
+            expect(body.comment.body).toBe("The article have given me some beautiful insights into the world of ecommerce")
+        })
+    })
+    test("POST: 400 responds with an appropriate status code and error message when provided with an invalid comment(no author)" ,() => {
+        const newComment = {
+            "body" : "The world is round around me" 
+        }
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("POST: 400 responds with the appropriate status code and error message when provided valid fields but invalid values to the fields ",() => {
+        const newComment = {
+            "username" : 23,
+            "body" : 123
+        }
+        return request(app)
+        .post('/api/articles/99/comments')
+        .send(newComment)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe("Bad request")
         })
     })
 })
