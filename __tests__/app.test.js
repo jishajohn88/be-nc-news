@@ -127,3 +127,67 @@ describe("GET /api/articles/:article_id",()=>{
         })
     })
 })
+describe("GET /api/articles/:article_id/comments",() => {
+    test("GET: 200 sends an array of comment for the article_id",()=>{
+        return request(app)
+        .get('/api/articles/1/comments')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments.length).toBeGreaterThan(0)
+            const commentObject = {
+                'comment_id' : 1,
+                'votes' : 30,
+                'created_at' : '2018-05-30T15:59:13.341Z',
+                'body' : 'I like this fab comment',
+                'article_id' : 3
+            }
+            const desiredCommentObject = {
+                'comment_id' : 1,
+                'article_id' : 3,
+            }
+            body.comments.forEach((comment) => {
+                expect(typeof comment.comment_id).toBe('number')
+                expect(typeof comment.votes).toBe('number')
+                expect(typeof comment.created_at).toBe('string')
+                expect(typeof comment.author).toBe('string')
+                expect(typeof comment.body).toBe('string')
+                expect(typeof comment.article_id).toBe('number')
+                expect(commentObject).toMatchObject(desiredCommentObject)
+            })
+           
+        })
+    })
+    test("GET: 200 responds with array of comments ordered with most recent comments first",() => {
+        return request(app)
+        .get('/api/articles/3/comments')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments.length).toBeGreaterThan(0)
+            expect(body.comments).toBeSortedBy('created_at',{descending:true})
+        })
+    })
+    test("GET: 200 responds with an empty array if the article_id exists but has no comments",() => {
+        return request(app)
+        .get('/api/articles/2/comments')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments).toEqual([])
+        })
+    })
+    test("GET: 404 responds with the appropriate status code and error message when passed an invalid article_id",()=>{
+        return request(app)
+        .get('/api/articles/99/comments')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Not found')
+        })
+    })
+    test("GET: 400 responds with appropriate status code and error message when given an invalid query",() => {
+        return request(app)
+        .get('/api/articles/1/invalid-query')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Path not found')
+        })
+    })
+})

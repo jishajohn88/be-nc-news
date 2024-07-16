@@ -25,5 +25,13 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "comment_id": 1,
+    "votes": 100,
+    "created_at": "2018-05-30T15:59:13.341Z",
+    "author": "Weetabix",
+    "body": "The beautiful thing about treasure is that it exists in the ocean",
+    "article_id": 3
   }
 }
