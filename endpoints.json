@@ -33,5 +33,9 @@
     "author": "Weetabix",
     "body": "The beautiful thing about treasure is that it exists in the ocean",
     "article_id": 3
+  },
+  "POST /api/articles/:article_id/comments": {
+    "username": "weegembump",
+    "body": "The beautiful thing about treasure that it exists for us to go get it"
   }
 }
