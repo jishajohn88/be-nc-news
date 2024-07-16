@@ -1,6 +1,6 @@
 exports.psqlErrorHandler = (error,request,response,next) => {
-    if(error.code === '22P02'){
-        response.status(400).send({message: 'Invalid id type'})
+    if(error.code === '22P02' || error.code === '23502' || error.code === '23503'){
+        response.status(400).send({message: 'Bad request'})
     }else {
         next(error)
     }

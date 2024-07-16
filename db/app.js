@@ -2,10 +2,12 @@ const express = require('express')
 const app = express();
 const {getTopics} = require('../controllers/topics.controllers');
 const { getArticleById, getArticles } = require('../controllers/articles.controllers');
-const { getComments } = require('../controllers/comments.controllers');
+const { getComments, postComments } = require('../controllers/comments.controllers');
 const {  psqlErrorHandler,customErrorHandler,serverErrorHandler } = require('../error-handlers');
 const endpoints = require('../endpoints.json')
 const fs = require('fs/promises');
+
+app.use(express.json())
 
 app.get('/api',(request,response,next)=>{
     const path = './endpoints.json'
@@ -23,6 +25,8 @@ app.get('/api/articles',getArticles)
 app.get('/api/articles/:article_id',getArticleById)
 
 app.get('/api/articles/:article_id/comments',getComments)
+
+app.post('/api/articles/:article_id/comments',postComments)
 
 app.use(psqlErrorHandler)
 

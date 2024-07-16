@@ -25,3 +25,21 @@ exports.selectComments = (article_id) => {
         return articleResults.rows;
     })
 }
+
+exports.insertComment = ({username,body},article_id) => {
+    const promiseArray = []
+    if(article_id){
+        promiseArray.push(checkIfArticleExists(article_id))
+    }
+    promiseArray.push(db.query(`INSERT INTO comments (body, article_id, author)
+        VALUES ($1, $2, $3) RETURNING *;`,[body,article_id,username]))
+
+    return Promise.all(promiseArray).then((result) => {
+        const queryResults = result[0]
+        const articleResults = result[1]
+        if(queryResults === false && articleResults.rows.length === 0){
+            return Promise.reject({status:404,message:'Not found'})
+        }
+        return articleResults.rows[0];
+    })
+}
