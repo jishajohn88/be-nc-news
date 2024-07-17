@@ -48,7 +48,7 @@ describe("GET /api/topics",() => {
     })
 })
 
-describe("GET /api/articles/:article_id",()=>{
+describe("GET /api/articles",() => {
 
     test("GET: 200 sends an array of article objects",()=>{
         return request(app)
@@ -83,6 +83,44 @@ describe("GET /api/articles/:article_id",()=>{
             })
         })
     })
+    test("GET: 200 responds with the data ordered by the given sort_by query column name", () => {
+        return request(app)
+        .get('/api/articles?sort_by=votes')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBeGreaterThan(0)
+            expect(body.articles).toBeSortedBy('votes',{descending : true})
+        })
+    })
+    test("GET: 400 responds with an appropriate error message when passed an invalid query" ,() => {
+        return request(app)
+        .get('/api/articles?sort_by=invalid-query')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Invalid query')
+        })
+    })
+    test("GET:200 responds with the data ordered by the given order query column name", () => {
+        return request(app)
+        .get('/api/articles?order=asc')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBeGreaterThan(0)
+            expect(body.articles).toBeSorted()
+        })
+    })
+    test("GET: 400 responds with the appropriate error message when passed with an invalid value for the order query",() => {
+        return request(app)
+        .get('/api/articles?order=invalid')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Invalid query')
+        })
+    })
+})
+describe("GET /api/articles/:article_id",()=>{
+
+
     test("GET:200 sends a single article to the user",() => {
         return request(app)
         .get('/api/articles/1')

@@ -3,8 +3,11 @@ const { selectArticleById, selectArticles, updatedArticle } = require("../models
 
 
 exports.getArticles = (request,response,next) => {
-    selectArticles().then((articles)=>{
+    const {sort_by,order}=request.query
+    selectArticles(sort_by,order).then((articles)=>{
         response.status(200).send({articles})
+    }).catch((err) => {
+        next(err)
     })
 }
 exports.getArticleById = (request,response,next) => {
