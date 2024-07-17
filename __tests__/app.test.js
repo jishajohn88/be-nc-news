@@ -234,3 +234,58 @@ describe("POST /api/articles/:article_id/comments",()=>{
         })
     })
 })
+
+describe("PATCH /api/articles/:article_id",() => {
+    test("PATCH: 200 responds with the an updated article when newVote is 1 ",() => {
+        const updateArticle = {
+            "inc_votes" : 1
+        }
+        return request(app)
+        .patch('/api/articles/1')
+        .send(updateArticle)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                "article_id" : 1,
+                "topic" : "mitch",
+                "votes" : 101
+            })
+        })
+    })
+    test("PATCH: 200 responds with an updated article when newVotes is -100",()=>{
+        const updateArticle = {
+            "inc_votes" : -100
+        }
+        return request(app)
+        .patch('/api/articles/1')
+        .send(updateArticle)
+        .expect(200)
+        .then(({body})=>{
+            expect(body.article.votes).toBe(0)
+        })
+    })
+    test("PATCH: 404 responds with an appropriate status code and error message",() => {
+        const updateArticle = {
+            "inc_votes" : 1
+        }
+        return request(app)
+        .patch('/api/articles/23')
+        .send(updateArticle)
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Not found')
+        })
+    })
+    test("PATCH: 400 responds with an appropriate status code and error message", () => {
+        const updateArticle = {
+            "inc_votes" : "abc"
+        }
+        return request(app)
+        .patch('/api/articles/1')
+        .send(updateArticle)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe("Bad request")
+        })
+    })
+})
