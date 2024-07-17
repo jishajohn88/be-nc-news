@@ -22,10 +22,7 @@ exports.updatedArticle = (article_id,inc_votes) => {
     const promiseArray = []
     const queryValues = []
     let sqlString = `UPDATE articles SET votes = ` 
-    // if(inc_votes){
-    //     sqlString += `votes + $1`
-    //     queryValues.push(inc_votes)
-    // }
+    
       if(inc_votes && article_id){
         sqlString+= `votes + $1 WHERE article_id = $2 RETURNING *;`
         queryValues.push(inc_votes)
