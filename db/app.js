@@ -3,6 +3,7 @@ const app = express();
 const {getTopics} = require('../controllers/topics.controllers');
 const { getArticleById, getArticles, patchArticles } = require('../controllers/articles.controllers');
 const { getComments, postComments, deleteComments } = require('../controllers/comments.controllers');
+const { getUsers } = require('../controllers/users.controllers');
 const {  psqlErrorHandler,customErrorHandler,serverErrorHandler } = require('../error-handlers');
 
 const { getEndpoints } = require('../controllers/endpoints.controllers');
@@ -24,6 +25,8 @@ app.get('/api/articles/:article_id/comments',getComments)
 app.post('/api/articles/:article_id/comments',postComments)
 
 app.delete('/api/comments/:comment_id',deleteComments)
+
+app.get('/api/users',getUsers)
 
 app.use(psqlErrorHandler)
 
