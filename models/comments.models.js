@@ -1,5 +1,5 @@
 const db = require("../db/connection")
-const { checkIfArticleExists } = require("../db/seeds/utils")
+const { checkIfArticleExists, checkIfCommentExists } = require("../db/seeds/utils")
 
 exports.selectComments = (article_id) => {
 
@@ -41,5 +41,27 @@ exports.insertComment = ({username,body},article_id) => {
             return Promise.reject({status:404,message:'Not found'})
         }
         return articleResults.rows[0];
+    })
+}
+
+exports.removeComment = (comment_id) => {
+    const queryValues = []
+    const promiseArray = []
+    let sqlString = `DELETE FROM comments`
+    if(comment_id){
+        sqlString += ` WHERE comment_id=$1`
+        queryValues.push(comment_id)
+        promiseArray.push(checkIfCommentExists(comment_id))
+    }
+
+    promiseArray.push(db.query(sqlString,queryValues));
+    return Promise.all(promiseArray).then((result) =>{
+        const queryResults = result[0]
+        const commentResults = result[1]
+        if(queryResults === false && commentResults.rows.length === 0){
+            return Promise.reject({status:404,message:'Comment does not exist'})
+        }
+
+        return commentResults.rows;
     })
 }

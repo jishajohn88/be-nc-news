@@ -4,6 +4,7 @@ const request = require("supertest")
 const db = require('../db/connection.js')
 const endpoints = require('../endpoints.json')
 const app = require('../db/app.js')
+const { checkIfCommentExists } = require('../db/seeds/utils.js')
 
 
 beforeEach(() => {
@@ -224,7 +225,7 @@ describe("POST /api/articles/:article_id/comments",()=>{
             expect(body.message).toBe('Bad request')
         })
     })
-    test("POST: 201 responds with the appropriate error message when provided with extra keys to the new comment",() => {
+    test("POST: 201 responds with the comment without having the extra property added to the comment",() => {
         const newComment = {
             "username" : "butter_bridge",
             "body"  : "The article have given me some beautiful insights into the world of ecommerce",
@@ -302,6 +303,36 @@ describe("PATCH /api/articles/:article_id",() => {
         .expect(400)
         .then(({body}) => {
             expect(body.message).toBe("Bad request")
+        })
+    })
+})
+
+describe("DELETE /api/comments/:comment_id",() =>{
+    test("DELETE: 204 responds with whether the comment has been deleted",() => {
+        return request(app)
+        .delete('/api/comments/17')
+        .expect(204)
+        .then(()=>{
+            return checkIfCommentExists(17)
+            .then((result) => {
+                expect(result).toBe(false)
+            })
+        })
+    })
+    test("DELETE: 400 responds with the appropriate error status code and message when passed an invalid query",() => {
+        return request(app)
+        .delete('/api/comments/invalid')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("DELETE: 404 responds with appropriate error message when passed a valid integer",() => {
+        return request(app)
+        .delete('/api/comments/240')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Comment does not exist')
         })
     })
 })
