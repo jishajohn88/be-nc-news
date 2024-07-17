@@ -37,12 +37,12 @@ describe("GET /api/topics",() => {
            })
         })
     })
-    test("GET: 400 send an appropriate status and error message when given an invalid query", () => {
+    test("GET: 404 send an appropriate status and error message when given an invalid query", () => {
         return request(app)
         .get('/api/invalid')
-        .expect(400)
+        .expect(404)
         .then((response) => {
-            expect(response.body.message).toBe("Path not found")
+            expect(response.body.message).toBe("Endpoint not found")
         })
     })
 })
@@ -55,15 +55,10 @@ describe("GET /api/articles/:article_id",()=>{
         .expect(200)
         .then(({body}) => {
             expect(body.articles.length).toBeGreaterThan(0)
-            body.articles.forEach((article)=>{
-                expect(typeof article.author).toBe('string')
-                expect(typeof article.title).toBe('string')
-                expect(typeof article.article_id).toBe('number')
-                expect(typeof article.topic).toBe('string')
-                expect(typeof article.created_at).toBe('string')
-                expect(typeof article.votes).toBe('number')
-                expect(typeof article.article_img_url).toBe('string')
-                expect(typeof article.comment_count).toBe('string')
+            expect(body.articles[0]).toMatchObject({
+                "author": 'icellusedkars',
+                "title": 'Eight pug gifs that remind me of mitch',
+                "article_id": 3,
             })
         })
     })
@@ -85,14 +80,6 @@ describe("GET /api/articles/:article_id",()=>{
             body.articles.forEach((article) => {
                 expect(article).not.toHaveProperty('body')
             })
-        })
-    })
-    test("GET: 400 send an appropriate error message when an invalid query is passed", () => {
-        return request(app)
-        .get('/api/articleee123')
-        .expect(400)
-        .then(({body}) => {
-            expect(body.message).toBe("Path not found")
         })
     })
     test("GET:200 sends a single article to the user",() => {
@@ -134,17 +121,6 @@ describe("GET /api/articles/:article_id/comments",() => {
         .expect(200)
         .then(({body}) => {
             expect(body.comments.length).toBeGreaterThan(0)
-            const commentObject = {
-                'comment_id' : 1,
-                'votes' : 30,
-                'created_at' : '2018-05-30T15:59:13.341Z',
-                'body' : 'I like this fab comment',
-                'article_id' : 3
-            }
-            const desiredCommentObject = {
-                'comment_id' : 1,
-                'article_id' : 3,
-            }
             body.comments.forEach((comment) => {
                 expect(typeof comment.comment_id).toBe('number')
                 expect(typeof comment.votes).toBe('number')
@@ -152,7 +128,6 @@ describe("GET /api/articles/:article_id/comments",() => {
                 expect(typeof comment.author).toBe('string')
                 expect(typeof comment.body).toBe('string')
                 expect(typeof comment.article_id).toBe('number')
-                expect(commentObject).toMatchObject(desiredCommentObject)
             })
            
         })
@@ -182,12 +157,12 @@ describe("GET /api/articles/:article_id/comments",() => {
             expect(body.message).toBe('Not found')
         })
     })
-    test("GET: 400 responds with appropriate status code and error message when given an invalid query",() => {
+    test("GET: 404 responds with appropriate status code and error message when given an invalid query",() => {
         return request(app)
         .get('/api/articles/1/invalid-query')
-        .expect(400)
+        .expect(404)
         .then(({body}) => {
-            expect(body.message).toBe('Path not found')
+            expect(body.message).toBe('Endpoint not found')
         })
     })
 })
@@ -206,6 +181,9 @@ describe("POST /api/articles/:article_id/comments",()=>{
             expect(body.comment.comment_id).toBe(19)
             expect(body.comment.author).toBe('butter_bridge')
             expect(body.comment.body).toBe("The article have given me some beautiful insights into the world of ecommerce")
+            expect(body.comment.article_id).toBe(2)
+            expect(body.comment.votes).toBe(0)
+            expect(body.comment).toHaveProperty('created_at')
         })
     })
     test("POST: 400 responds with an appropriate status code and error message when provided with an invalid comment(no author)" ,() => {
@@ -231,6 +209,32 @@ describe("POST /api/articles/:article_id/comments",()=>{
         .expect(400)
         .then(({body}) => {
             expect(body.message).toBe("Bad request")
+        })
+    })
+    test("POST: 400 responds with the appropriate error message when provided with an invalid username" , () => {
+        const newComment = {
+            "username" : "Pauline32",
+            "body"  : "The article have given me some beautiful insights into the world of ecommerce"
+        }
+
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send(newComment)
+        .then(({body})=>{
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("POST: 201 responds with the appropriate error message when provided with extra keys to the new comment",() => {
+        const newComment = {
+            "username" : "butter_bridge",
+            "body"  : "The article have given me some beautiful insights into the world of ecommerce",
+            "layout" : "side by side"
+        }
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send(newComment)
+        .then(({body})=>{
+            expect(body.comment).not.toHaveProperty('layout')
         })
     })
 })
@@ -276,12 +280,24 @@ describe("PATCH /api/articles/:article_id",() => {
             expect(body.message).toBe('Not found')
         })
     })
-    test("PATCH: 400 responds with an appropriate status code and error message", () => {
+    test("PATCH: 400 responds with an appropriate status code and error message when given an invalid datatype for the column", () => {
         const updateArticle = {
             "inc_votes" : "abc"
         }
         return request(app)
         .patch('/api/articles/1')
+        .send(updateArticle)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe("Bad request")
+        })
+    })
+    test("PATCH: 400 responds with an appropriate error message when given an invalid article id",() => {
+        const updateArticle = {
+            "inc_votes" : 1
+        }
+        return request(app)
+        .patch('/api/articles/invalid')
         .send(updateArticle)
         .expect(400)
         .then(({body}) => {

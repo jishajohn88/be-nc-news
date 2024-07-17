@@ -4,20 +4,13 @@ const {getTopics} = require('../controllers/topics.controllers');
 const { getArticleById, getArticles, patchArticles } = require('../controllers/articles.controllers');
 const { getComments, postComments } = require('../controllers/comments.controllers');
 const {  psqlErrorHandler,customErrorHandler,serverErrorHandler } = require('../error-handlers');
-const endpoints = require('../endpoints.json')
-const fs = require('fs/promises');
+
+const { getEndpoints } = require('../controllers/endpoints.controllers');
 
 app.use(express.json())
 
-app.get('/api',(request,response,next)=>{
-    const path = './endpoints.json'
-    fs.readFile(path,'utf-8')
-    .then((result)=>{
-        const parsedData = JSON.parse(result)
-        response.status(200).send({endpoints:parsedData})
-    })
-    
-})
+app.get('/api',getEndpoints)
+
 app.get('/api/topics',getTopics)
 
 app.get('/api/articles',getArticles)
@@ -38,7 +31,7 @@ app.use(serverErrorHandler)
 
 
 app.all("*",(request,response,next) => {
-    response.status(400).send({message: "Path not found"})
+    response.status(404).send({message: "Endpoint not found"})
   })
   
 module.exports = app
