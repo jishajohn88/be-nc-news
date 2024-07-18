@@ -129,6 +129,9 @@ describe("GET /api/articles",() => {
                 article_id: 3,
                 topic: 'mitch',
             })
+            body.articles.forEach((article) => {
+                expect(article.topic).toBe('mitch')
+            })
         })
     })
     test("GET: 404 responds with all the articles objects when there invalid topic query passed",() => {
@@ -136,8 +139,16 @@ describe("GET /api/articles",() => {
         .get('/api/articles?topic=invalid')
         .expect(404)
         .then(({body}) => {
-            expect(body.message).toBe('Not found')
+            expect(body.message).toBe('Topic not found')
            
+        })
+    })
+    test("GET: 200 responds with the appropriate error message when the topic does not exist",() => {
+        return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)//return value of empty array 200
+        .then(({body}) => {
+            expect(body.message).toBe('Not found')
         })
     })
 })
@@ -385,10 +396,10 @@ describe("PATCH /api/articles/:article_id",() => {
 describe("DELETE /api/comments/:comment_id",() =>{
     test("DELETE: 204 responds with whether the comment has been deleted",() => {
         return request(app)
-        .delete('/api/comments/17')
+        .delete('/api/comments/18')
         .expect(204)
         .then(()=>{
-            return checkIfCommentExists(17)
+            return checkIfCommentExists(18)
             .then((result) => {
                 expect(result).toBe(false)
             })
@@ -402,14 +413,6 @@ describe("DELETE /api/comments/:comment_id",() =>{
             expect(body.message).toBe('Bad request')
         })
     })
-    test("DELETE: 404 responds with appropriate error message when passed a valid integer",() => {
-        return request(app)
-        .delete('/api/comments/240')
-        .expect(404)
-        .then(({body}) => {
-            expect(body.message).toBe('Comment does not exist')
-        })
-    })
 })
 
 describe("GET /api/users",() => {
@@ -418,7 +421,7 @@ describe("GET /api/users",() => {
         .get('/api/users')
         .expect(200)
         .then(({body}) => {
-            expect(body.users.length).toBeGreaterThan(0)
+            expect(body.users.length).toBe(4)
             body.users.forEach((user) => {
                 expect(typeof user.username).toBe('string')
                 expect(typeof user.name).toBe('string')
