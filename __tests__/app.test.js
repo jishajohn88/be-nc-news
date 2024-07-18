@@ -117,6 +117,29 @@ describe("GET /api/articles",() => {
             expect(body.message).toBe('Invalid query')
         })
     })
+    test("GET: 200 responds with the article objects filtered by topic query",() => {
+        return request(app)
+        .get('/api/articles?topic=mitch')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBeGreaterThan(0)
+            expect(body.articles[0]).toMatchObject({
+                author: 'icellusedkars',
+                title: 'Eight pug gifs that remind me of mitch',
+                article_id: 3,
+                topic: 'mitch',
+            })
+        })
+    })
+    test("GET: 404 responds with all the articles objects when there invalid topic query passed",() => {
+        return request(app)
+        .get('/api/articles?topic=invalid')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Not found')
+           
+        })
+    })
 })
 describe("GET /api/articles/:article_id",()=>{
 
