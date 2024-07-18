@@ -1,33 +1,41 @@
 const db = require("../db/connection.js")
-const { checkIfArticleExists } = require("../db/seeds/utils.js")
+const { checkIfArticleExists, checkIfTopicExists } = require("../db/seeds/utils.js")
+const { selectTopics } = require("./topics.models.js")
 
 
 exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     const validSortBys = ['article_id', 'title', 'topic', 'author','created_at','votes','article_img_url']
     const validOrders = ['asc','desc']
+  
     let sqlString = `SELECT articles.author,articles.title,articles.article_id,articles.topic,articles.created_at,articles.votes,articles.article_img_url,COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id=comments.article_id `
     const queryValues = []
-    if(topic) {
-        sqlString += ` WHERE topic=$1 `
-        queryValues.push(topic)
-    } 
+    const promiseArray = []
+    
     if(!validSortBys.includes(sort_by)){
         return Promise.reject({status: 400, message: 'Invalid query'})
     } 
-    sqlString += `GROUP BY articles.article_id ORDER BY ${sort_by}`
+   
     if(!validOrders.includes(order)){
         return Promise.reject({status: 400, message: 'Invalid query'})
-    } else {
-        sqlString += ` ${order}`
-
+    } 
+   if(topic) {
+        sqlString += ` WHERE topic=$1 `
+        queryValues.push(topic)
+        promiseArray.push(checkIfTopicExists(topic))
     }
-    return db.query(sqlString,queryValues)
-    .then((result)=>{
-        if(result.rows.length === 0){
-            return Promise.reject({status:404, message:"Not found"})
+     sqlString += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`
+   
+    promiseArray.push(db.query(sqlString,queryValues))
+    return Promise.all(promiseArray).then((result)=>{
+        const queryResultsWithArticles = result[0]
+        const topicResults = result[1]
+        if(queryResultsWithArticles === true && topicResults.rows.length === 0){
+            return Promise.reject({status:200,message:'Not found'})
+        } 
+        if(queryResultsWithArticles === true && topicResults.rows.length > 0){
+             return topicResults.rows
         }
-        return result.rows
-    
+       return queryResultsWithArticles.rows
     })
 }
 

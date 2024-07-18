@@ -45,23 +45,5 @@ exports.insertComment = ({username,body},article_id) => {
 }
 
 exports.removeComment = (comment_id) => {
-    const queryValues = []
-    const promiseArray = []
-    let sqlString = `DELETE FROM comments`
-    if(comment_id){
-        sqlString += ` WHERE comment_id=$1`
-        queryValues.push(comment_id)
-        promiseArray.push(checkIfCommentExists(comment_id))
-    }
-
-    promiseArray.push(db.query(sqlString,queryValues));
-    return Promise.all(promiseArray).then((result) =>{
-        const queryResults = result[0]
-        const commentResults = result[1]
-        if(queryResults === false && commentResults.rows.length === 0){
-            return Promise.reject({status:404,message:'Comment does not exist'})
-        }
-
-        return commentResults.rows;
-    })
+    return db.query(`DELETE FROM comments WHERE comment_id=$1`,[comment_id])
 }
