@@ -172,7 +172,21 @@ describe("GET /api/articles/:article_id",()=>{
         .get('/api/articles/9999')
         .expect(404)
         .then(({body})=>{
-            expect(body.message).toBe("Article does not exist")
+            expect(body.message).toBe("Article not found")
+        })
+    })
+    test("GET:200 sends an article object with comment_count to the user",()=>{
+        return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                article_id: 1,
+                title: 'Living in the shadow of a great man',
+                topic: 'mitch',
+                author: 'butter_bridge',
+                comment_count : '11'
+            })
         })
     })
 })
