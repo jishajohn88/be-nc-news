@@ -1,4 +1,3 @@
-const { response } = require("../db/app")
 const { selectArticleById, selectArticles, updatedArticle } = require("../models/articles.models")
 
 
