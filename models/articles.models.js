@@ -30,13 +30,27 @@ exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     
     })
 }
+
 exports.selectArticleById = (article_id) => {
-    return db.query('SELECT * FROM articles WHERE article_id = $1;',[article_id])
-    .then((result)=> {
-        if(result.rows.length === 0){
-            return Promise.reject({status:404, message:"Article does not exist"})
+    let sqlString = `SELECT articles.*,COUNT(comments.article_id) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `
+
+    const queryValues = []
+    const promiseArray = []
+    if(article_id){
+        sqlString += `WHERE articles.article_id=$1 `
+        queryValues.push(article_id)
+        promiseArray.push(checkIfArticleExists(article_id))
+    }
+    sqlString += `GROUP BY articles.article_id`
+    promiseArray.push(db.query(sqlString,queryValues))
+
+    return Promise.all(promiseArray).then((result) => {
+        const queryResults = result[0]
+        const articleResults = result [1]
+        if(queryResults === false && articleResults.rows.length === 0){
+            return Promise.reject({status:404,message:'Article not found'})
         }
-        return result.rows[0]
+        return articleResults.rows[0];
     })
 }
 
