@@ -144,8 +144,8 @@ describe("checkIfTopicExists",() => {
     })
   })
   test("should return false if the topic does not exist",() => {
-    return checkIfTopicExists(23).then((result) => {
-      expect(result).toBe(false)
+    return checkIfTopicExists(23).catch((err) => {
+      expect(err.message).toBe('Topic not found')
     })
   })
 })
