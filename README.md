@@ -17,4 +17,19 @@
 
 ---
 
-This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
+- Check my hosted version of the API - https://nc-news-0xna.onrender.com/
+
+- The project includes the varioud endpoints to get data regarding the users,topics, articles and also you can find out how many comments you got for a particular article
+
+- Follow the instructions to use my git repo and running it locally in your own machine:
+
+1.  Login into your github account, go to https://github.com/jishajohn88/be-nc-news
+2.  Click on 'Code' to get the link to clone the repo
+3.  Open a terminal and go to the directory where you want to put the repo and type in git clone https://github.com/jishajohn88/be-nc-news.git
+4.  Open the git repo in Visual Studio code by using code . in the terminal inside the directory where the repo lives and then in the terminal type npm install to install all the dependencies.
+5.  In the terminal type in npm run psql -f ./db/setup.sql, followed by node ./db/seeds/run-seed.js and at last run npm test app.
+6.  As part of running the repo you need to create 2 .env files which uses the development and test data.
+7.  When tests are run it makes use of .env.test and when development is run it uses .env.development.
+8.  Minimum versions required to run Node.js is v22.2.0 and Postgres is 8.12.0.
+
+    This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
