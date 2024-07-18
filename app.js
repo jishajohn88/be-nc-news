@@ -1,12 +1,12 @@
 const express = require('express')
 const app = express();
-const {getTopics} = require('../controllers/topics.controllers');
-const { getArticleById, getArticles, patchArticles } = require('../controllers/articles.controllers');
-const { getComments, postComments, deleteComments } = require('../controllers/comments.controllers');
-const { getUsers } = require('../controllers/users.controllers');
-const {  psqlErrorHandler,customErrorHandler,serverErrorHandler } = require('../error-handlers');
+const {getTopics} = require('./controllers/topics.controllers');
+const { getArticleById, getArticles, patchArticles } = require('./controllers/articles.controllers');
+const { getComments, postComments, deleteComments } = require('./controllers/comments.controllers');
+const { getUsers } = require('./controllers/users.controllers');
+const {  psqlErrorHandler,customErrorHandler,serverErrorHandler } = require('./error-handlers');
 
-const { getEndpoints } = require('../controllers/endpoints.controllers');
+const { getEndpoints } = require('./controllers/endpoints.controllers');
 
 app.use(express.json())
 

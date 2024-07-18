@@ -3,7 +3,7 @@ const seed = require('../db/seeds/seed.js')
 const request = require("supertest")
 const db = require('../db/connection.js')
 const endpoints = require('../endpoints.json')
-const app = require('../db/app.js')
+const app = require('../app.js')
 const { checkIfCommentExists } = require('../db/seeds/utils.js')
 
 
