@@ -430,3 +430,24 @@ describe("GET /api/users",() => {
         })
     })
 })
+
+describe("GET /api/users/:username",() => {
+    test("GET: 200 responds with a user object to the user",()=>{
+        return request(app)
+        .get('/api/users/lurker')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.user.username).toBe('lurker')
+            expect(body.user.avatar_url).toBe('https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png')
+            expect(body.user.name).toBe('do_nothing')
+        })
+    })
+    test("GET: 404 responds with an appropriate error message when passed an invalid name",() => {
+        return request(app)
+        .get('/api/users/invalid')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('User not found')
+        })
+    })
+})
