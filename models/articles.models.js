@@ -80,3 +80,12 @@ exports.updatedArticle = (article_id,inc_votes) => {
         return articleResults.rows[0]
     })
 }
+
+exports.insertArticle = ({title,topic,author,body}) => {
+    return db.query(`INSERT INTO articles (title, topic, author, body) VALUES ($1, $2, $3, $4) RETURNING *;`,[title,topic,author,body])
+    .then((result) => {
+        return this.selectArticleById(result.rows[0].article_id)
+    }).then((postedArticle)=>{
+        return postedArticle
+    })
+}
