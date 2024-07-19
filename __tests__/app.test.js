@@ -415,6 +415,71 @@ describe("DELETE /api/comments/:comment_id",() =>{
     })
 })
 
+describe("PATCH /api/comments/:comment_id", () => {
+    test("PATCH: 200 responds with the updated comment",() => {
+        const updatedComment = {
+            inc_votes : 1
+        }
+        return request(app)
+        .patch('/api/comments/1')
+        .send(updatedComment)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comment).toMatchObject({
+                comment_id : 1,
+                author: "butter_bridge",
+                votes: 17
+            })
+        })
+    })
+    test("PATCH: 200 responds with the updated comment when the newVotes is -1", () => {
+        const updatedComment = {
+            inc_votes : -1
+        }
+        return request(app)
+        .patch('/api/comments/1')
+        .send(updatedComment)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comment.votes).toBe(15)
+        })
+    })
+    test("PATCH: 400 responds with an appropriate status code and error message when passed an invalid datatype", () => {
+        const updatedComment = {
+            inc_votes : "abc"
+        }
+        return request(app)
+        .patch('/api/comments/1')
+        .send(updatedComment)
+        .then(({body}) => {
+            expect(body.message).toBe("Bad request")
+        })
+    })
+    test("PATCH: 400 responds with the appropriate status code and error message when passed an invalid query", () => {
+        const updatedComment = {
+            inc_votes : 1
+        }
+        return request(app)
+        .patch('/api/comments/invalid')
+        .send(updatedComment)
+        .then(({body}) => {
+            expect(body.message).toBe("Bad request")
+        })
+    })
+    test("PATCH: 404 responds with the appropriate error message when a comment id is passed when not present in the table",() => {
+        const updatedComment = {
+            inc_votes : 1
+        }
+        return request(app)
+        .patch('/api/comments/999')
+        .send(updatedComment)
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Not found')
+        })
+    })
+})
+
 describe("GET /api/users",() => {
     test("GET: 200 responds with the array of user objects" ,() => {
         return request(app)
