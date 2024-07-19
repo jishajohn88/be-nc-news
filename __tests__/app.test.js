@@ -152,6 +152,88 @@ describe("GET /api/articles",() => {
         })
     })
 })
+
+describe("POST /api/articles",() => {
+    test("POST: 201 inserts a new articles and responds with the posted article", () => {
+        const newArticle = {
+            author : 'butter_bridge',
+            title : 'The world of bridges filled with butter',
+            body : 'All about making buttery bridges',
+            topic : 'mitch'
+        }
+        return request(app)
+        .post('/api/articles')
+        .send(newArticle)
+        .expect(201)
+        .then(({body}) => {
+            expect(body.article.title).toBe('The world of bridges filled with butter')
+            expect(body.article.topic).toBe('mitch')
+            expect(body.article.author).toBe('butter_bridge')
+            expect(body.article.body).toBe('All about making buttery bridges')
+            expect(body.article.article_img_url).toEqual(expect.any(String))
+            expect(body.article.comment_count).toBe('0')
+            expect(body.article.votes).toBe(0)
+        })
+    })
+    test("POST: 400 responds with an appropriate status code and error massage when provided with an invalid data(no author)",()=>{
+        const newArticle = {
+            body : 'All about making buttery bridges',
+            topic : 'mitch'
+        }
+        return request(app)
+        .post('/api/articles')
+        .send(newArticle)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.message).toBe("Bad request")
+        })
+    })
+    test("POST: 400 responds with an appropriate status code and error message when passed valid fields but invalid values", () => {
+        const newArticle = {
+            author : 23,
+            title : 'The world of bridges filled with butter',
+            body : 'All about making buttery bridges',
+            topic : 43
+        }
+        return request(app)
+        .post('/api/articles')
+        .send(newArticle)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("POST: 400 responds with the appropriate error message when passes an invalid author",() => {
+        const newArticle = {
+            author : 'rainbow_rose',
+            title : 'The world of bridges filled with butter',
+            body : 'All about making buttery bridges',
+            topic : 'mitch'
+        }
+        return request(app)
+        .post('/api/articles')
+        .send(newArticle)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("POST: 201 responds with the article without having the extra property added",() => {
+        const newArticle = {
+            author : 'butter_bridge',
+            title : 'The world of bridges filled with butter',
+            body : 'All about making buttery bridges',
+            topic : 'mitch',
+            brand : 'Flora'
+        }
+        return request(app)
+        .post('/api/articles')
+        .send(newArticle)
+        .expect(201)
+        .then(({body})=>{
+            expect(body.article).not.toHaveProperty('brand')
+        })
+    })
+})
 describe("GET /api/articles/:article_id",()=>{
 
 
@@ -398,7 +480,7 @@ describe("DELETE /api/comments/:comment_id",() =>{
         return request(app)
         .delete('/api/comments/18')
         .expect(204)
-        .then(()=>{
+        .then((response)=>{
             return checkIfCommentExists(18)
             .then((result) => {
                 expect(result).toBe(false)

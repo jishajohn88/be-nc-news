@@ -68,5 +68,16 @@
     "author": "butter_bridge",
     "votes": 15,
     "created_at": "2020-04-06T12:17:00.000Z"
+  },
+  "POST /api/articles": {
+    "article_id": 14,
+    "title": "The world of bridges filled with butter",
+    "topic": "mitch",
+    "author": "butter_bridge",
+    "body": "All about making buttery bridges",
+    "created_at": "2024-07-19T14:56:30.721Z",
+    "votes": 0,
+    "article_img_url": "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+    "comment_count": "0"
   }
 }
