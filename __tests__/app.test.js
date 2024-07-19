@@ -38,7 +38,7 @@ describe("GET /api/topics",() => {
            })
         })
     })
-    test("GET: 404 send an appropriate status and error message when given an invalid query", () => {
+    test("GET: 404 send an appropriate status and error message when given an invalid endpoint", () => {
         return request(app)
         .get('/api/invalid')
         .expect(404)
@@ -92,12 +92,12 @@ describe("GET /api/articles",() => {
             expect(body.articles).toBeSortedBy('votes',{descending : true})
         })
     })
-    test("GET: 400 responds with an appropriate error message when passed an invalid query" ,() => {
+    test("GET: 400 responds with an appropriate error message when passed an invalid endpoint" ,() => {
         return request(app)
         .get('/api/articles?sort_by=invalid-query')
         .expect(400)
         .then(({body}) => {
-            expect(body.message).toBe('Invalid query')
+            expect(body.message).toBe('Invalid endpoint')
         })
     })
     test("GET:200 responds with the data ordered by the given order query column name", () => {
@@ -114,7 +114,7 @@ describe("GET /api/articles",() => {
         .get('/api/articles?order=invalid')
         .expect(400)
         .then(({body}) => {
-            expect(body.message).toBe('Invalid query')
+            expect(body.message).toBe('Invalid endpoint')
         })
     })
     test("GET: 200 responds with the article objects filtered by topic query",() => {
@@ -146,9 +146,9 @@ describe("GET /api/articles",() => {
     test("GET: 200 responds with the appropriate error message when the topic does not exist",() => {
         return request(app)
         .get('/api/articles?topic=paper')
-        .expect(200)//return value of empty array 200
+        .expect(200)
         .then(({body}) => {
-            expect(body.message).toBe('Not found')
+            expect(body.articles).toEqual([])
         })
     })
 })
