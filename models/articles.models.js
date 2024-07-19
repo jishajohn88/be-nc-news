@@ -12,11 +12,11 @@ exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     const promiseArray = []
     
     if(!validSortBys.includes(sort_by)){
-        return Promise.reject({status: 400, message: 'Invalid query'})
+        return Promise.reject({status: 400, message: 'Invalid endpoint'})
     } 
    
     if(!validOrders.includes(order)){
-        return Promise.reject({status: 400, message: 'Invalid query'})
+        return Promise.reject({status: 400, message: 'Invalid endpoint'})
     } 
    if(topic) {
         sqlString += ` WHERE topic=$1 `
@@ -29,10 +29,7 @@ exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     return Promise.all(promiseArray).then((result)=>{
         const queryResultsWithArticles = result[0]
         const topicResults = result[1]
-        if(queryResultsWithArticles === true && topicResults.rows.length === 0){
-            return Promise.reject({status:200,message:'Not found'})
-        } 
-        if(queryResultsWithArticles === true && topicResults.rows.length > 0){
+        if(queryResultsWithArticles === true && topicResults.rows.length >= 0){
              return topicResults.rows
         }
        return queryResultsWithArticles.rows
