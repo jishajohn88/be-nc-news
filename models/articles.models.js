@@ -3,7 +3,7 @@ const { checkIfArticleExists, checkIfTopicExists } = require("../db/seeds/utils.
 const { selectTopics } = require("./topics.models.js")
 
 
-exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
+exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic,p = 1,limit = 10) => {
     const validSortBys = ['article_id', 'title', 'topic', 'author','created_at','votes','article_img_url']
     const validOrders = ['asc','desc']
   
@@ -11,6 +11,7 @@ exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     const queryValues = []
     const promiseArray = []
     
+    let totalQueryString = `SELECT CAST(COUNT(article_id) AS INT) FROM articles`
     if(!validSortBys.includes(sort_by)){
         return Promise.reject({status: 400, message: 'Invalid endpoint'})
     } 
@@ -20,19 +21,22 @@ exports.selectArticles = (sort_by= 'created_at',order= 'desc',topic) => {
     } 
    if(topic) {
         sqlString += ` WHERE topic=$1 `
+        totalQueryString += ` WHERE topic=$1`
         queryValues.push(topic)
         promiseArray.push(checkIfTopicExists(topic))
     }
-     sqlString += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`
+    
+     sqlString += `GROUP BY articles.article_id ORDER BY ${sort_by} ${order} LIMIT ${limit} OFFSET ${(p-1) * limit}`
    
-    promiseArray.push(db.query(sqlString,queryValues))
+    promiseArray.unshift(db.query(sqlString,queryValues),db.query(totalQueryString,queryValues))
     return Promise.all(promiseArray).then((result)=>{
+        const total_count = result[1].rows[0].count
         const queryResultsWithArticles = result[0]
-        const topicResults = result[1]
+        const topicResults = result[2]
         if(queryResultsWithArticles === true && topicResults.rows.length >= 0){
              return topicResults.rows
         }
-       return queryResultsWithArticles.rows
+       return [queryResultsWithArticles.rows,total_count]
     })
 }
 

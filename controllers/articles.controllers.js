@@ -2,9 +2,9 @@ const { selectArticleById, selectArticles, updatedArticle, insertArticle } = req
 
 
 exports.getArticles = (request,response,next) => {
-    const {sort_by,order,topic}=request.query
-    selectArticles(sort_by,order,topic).then((articles)=>{
-        response.status(200).send({articles})
+    const {sort_by,order,topic,p,limit}=request.query
+    selectArticles(sort_by,order,topic,p,limit).then((articles)=>{
+        response.status(200).send({articles:articles[0],total_count:articles[1]})
     }).catch((err) => {
         next(err)
     })
