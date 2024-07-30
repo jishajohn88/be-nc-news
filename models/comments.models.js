@@ -1,7 +1,7 @@
 const db = require("../db/connection")
 const { checkIfArticleExists, checkIfCommentExists } = require("../db/seeds/utils")
 
-exports.selectComments = (article_id) => {
+exports.selectComments = (article_id,limit=10,p=1) => {
 
     const queryValues = []
     const promiseArray = []
@@ -12,7 +12,7 @@ exports.selectComments = (article_id) => {
         promiseArray.push(checkIfArticleExists(article_id))
     }
 
-    sqlString += `ORDER BY created_at DESC`
+    sqlString += `ORDER BY created_at DESC LIMIT ${limit} OFFSET ${(p-1) * limit}`
     promiseArray.push(db.query(sqlString,queryValues));
 
     return Promise.all(promiseArray).then((result) => {

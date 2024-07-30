@@ -5,6 +5,7 @@ const db = require('../db/connection.js')
 const endpoints = require('../endpoints.json')
 const app = require('../app.js')
 const { checkIfCommentExists } = require('../db/seeds/utils.js')
+const comments = require('../db/data/test-data/comments.js')
 
 
 beforeEach(() => {
@@ -409,6 +410,81 @@ describe("GET /api/articles/:article_id/comments",() => {
             expect(body.message).toBe('Endpoint not found')
         })
     })
+    test("GET: 200 responds with the array of comment with default limit of the returned comments to be 10",() => {
+        return request(app)
+        .get('/api/articles/1/comments?limit=10')
+        .expect(200)
+        .then(({body})=>{
+            expect(body.comments.length).toBe(10)
+        })
+    })
+    test("GET: 200 responds with the array of comments with the limit query passed",() => {
+        return request(app)
+        .get('/api/articles/1/comments?limit=11')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments.length).toBe(11)
+            body.comments.forEach((comment) => {
+                expect(comment).toEqual({
+                    comment_id: expect.any(Number),
+                    votes: expect.any(Number),
+                    created_at: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    article_id: 1
+                })
+            })
+        })
+    })
+    test("GET: 200 responds with the 2 comments in the array when the limit is 2",() => {
+        return request(app)
+        .get('/api/articles/1/comments?limit=2')
+        .expect(200)
+        .then(({body})=>{
+            expect(body.comments.length).toBe(2)
+        })
+    })
+    test("GET: 200 responds with all the comments in the array when the limit is more than the default number",() => {
+        return request(app)
+        .get('/api/articles/1/comments?limit=245')
+        .expect(200)
+        .then(({body})=>{
+            expect(body.comments.length).toBe(11)
+        })
+    })
+    test("GET: 400 responds with the appropriate error message when invalid is passed",() => {
+        return request(app)
+        .get('/api/articles/1/comments?limit=invalid')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("GET: 200 responds with the comments in the first page",() => {
+        return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body})=>{
+              expect(body.comments[0].comment_id).toBe(5)
+            })
+        })
+    test("GET: 200 responds with the comments in the second page",()=>{
+        return request(app)
+        .get('/api/articles/1/comments?p=2&limit=4')
+        .expect(200)
+        .then(({body})=>{
+          expect(body.comments[0].comment_id).toBe(7)
+        })
+    })
+    test("GET: 400 responds with the appropriate error message when passed invalid into page number", () =>{
+        return request(app)
+        .get('/api/articles/1/comments?p=invalid')
+        .expect(400)
+        .then(({body})=>{
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    
 })
 
 describe("POST /api/articles/:article_id/comments",()=>{
