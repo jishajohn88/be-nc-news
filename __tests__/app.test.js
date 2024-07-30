@@ -151,6 +151,81 @@ describe("GET /api/articles",() => {
             expect(body.articles).toEqual([])
         })
     })
+    test("GET: 200 responds with the first 10 articles",() => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBe(10)
+        })
+    })
+    test("GET: 200 responds with limited number of articles passed as query",() => {
+        return request(app)
+        .get('/api/articles?limit=3')
+        .expect(200)
+        .then(({body})=>{
+            expect(body.articles.length).toBe(3)
+        })
+    })
+    test("GET: 400 responds with the appropriate error message when invalid is passed into the limit query",() => {
+        return request(app)
+        .get('/api/articles?limit=invalid')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("GET: 200 responds with the first page",() => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id&order=asc')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles.length).toBe(10)
+            body.articles.forEach((article,index) => {
+                expect(article.article_id).toBe(1+index)
+            })
+        })
+    })
+    test("GET: 200 responds with the correct page",() => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id&order=asc&p=2')
+        .expect(200)
+        .then(({body}) => { 
+            expect(body.articles.length).toBe(3)
+        })
+    })
+    test("GET:200 responds with an empty array when the page does not exist",() => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id&order=asc&p=4')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles).toEqual([])
+        })
+    })
+    test("GET: 400 responds with the appropriate error message when the page number is invalid",() => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id&order=asc&p=invalid')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("GET: 200 responds with the total_count with the total number of articles",() => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.total_count).toBe(13)
+        })
+    })
+    test("GET: 200 responds with the total_count when topic filters are appplied",() => {
+        return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.total_count).toBe(0)
+        })
+    })
 })
 
 describe("POST /api/articles",() => {
