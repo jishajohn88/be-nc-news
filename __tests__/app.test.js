@@ -49,6 +49,46 @@ describe("GET /api/topics",() => {
     })
 })
 
+describe("POST /api/topics",() => {
+    test("POST: 201 inserts a new topic with the posted topic",() => {
+        const newTopic = {
+            slug: 'Bubblegum',
+            description: 'Chewy bluey bubblegum'
+        }
+        return request(app)
+        .post('/api/topics')
+        .send(newTopic)
+        .expect(201)
+        .then(({body}) => {
+            expect(body.topic).toEqual(newTopic)
+        })
+    })
+    test("POST: 400 responds with an appropriate status code and error massage when provided with an invalid data(no slug)",()=>{
+        const newTopic = {
+            description: 'Chewy bluey bubblegum'
+        }
+        return request(app)
+        .post('/api/topics')
+        .send(newTopic)
+        .expect(400)
+        .then(({body})=>{
+            expect(body.message).toBe("Bad request")
+        })
+    })
+    test("POST: 201 responds with the topic when missing description and passed additinal key",() => {
+        const newTopic = {
+            slug: 'Bubblegum',
+            flavour: 'strawberry'
+        }
+        return request(app)
+        .post('/api/topics')
+        .send(newTopic)
+        .expect(201)
+        .then(({body}) => {
+            expect(body.topic).toMatchObject({slug : 'Bubblegum', description: null})
+        })
+    })
+})
 describe("GET /api/articles",() => {
 
     test("GET: 200 sends an array of article objects",()=>{
