@@ -4,7 +4,7 @@ const request = require("supertest")
 const db = require('../db/connection.js')
 const endpoints = require('../endpoints.json')
 const app = require('../app.js')
-const { checkIfCommentExists } = require('../db/seeds/utils.js')
+const { checkIfCommentExists, checkIfArticleExists } = require('../db/seeds/utils.js')
 const comments = require('../db/data/test-data/comments.js')
 
 
@@ -396,6 +396,36 @@ describe("GET /api/articles/:article_id",()=>{
                 author: 'butter_bridge',
                 comment_count : '11'
             })
+        })
+    })
+})
+describe("DELETE /api/articles/:article_id",()=>{
+    test("DELETE: 204 responds with whether the article has been deleted",() => {
+        return request(app)
+        .delete('/api/articles/2')
+        .expect(204)
+        .then(({body})=>{
+            return checkIfArticleExists(2)
+            .then((result) => {
+                expect(result).toBe(false)
+            })
+        })
+    })
+
+    test("DELETE: 400 responds with the appropriate error status code and message when passed an invalid query",() => {
+        return request(app)
+        .delete('/api/articles/invalid')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.message).toBe('Bad request')
+        })
+    })
+    test("DELETE: 404 responds with an appropriate error message when passed an invalid value",() => {
+        return request(app)
+        .get('/api/articles/542')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.message).toBe('Article not found')
         })
     })
 })
