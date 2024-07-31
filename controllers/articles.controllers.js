@@ -1,4 +1,4 @@
-const { selectArticleById, selectArticles, updatedArticle, insertArticle } = require("../models/articles.models")
+const { selectArticleById, selectArticles, updatedArticle, insertArticle, removeArticle } = require("../models/articles.models")
 
 
 exports.getArticles = (request,response,next) => {
@@ -33,6 +33,15 @@ exports.postArticle = (request,response,next) => {
     insertArticle(newArticle).then((article) => {
         response.status(201).send({article})
     }).catch((err)=>{
+        next(err)
+    })
+}
+
+exports.deleteArticle = (request,response,next) => {
+    const {article_id} = request.params
+    removeArticle(article_id).then(() => {
+        response.status(204).send()
+    }).catch((err) => {
         next(err)
     })
 }

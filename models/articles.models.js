@@ -93,3 +93,10 @@ exports.insertArticle = ({title,topic,author,body}) => {
         return postedArticle
     })
 }
+
+exports.removeArticle = (article_id) => {
+    return db.query(`DELETE FROM articles WHERE article_id=$1 RETURNING *;`,[article_id])
+    .then((result) => {
+        return result.rows
+    })
+}
